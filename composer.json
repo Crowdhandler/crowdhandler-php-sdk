@@ -1,0 +1,28 @@
+{
+    "name": "crowdhandler/sdk",
+    "type": "library",
+    "description": "A PHP library for interacting with CrowdHandler",
+    "homepage": "https://www.crowdhandler.com/",
+    "authors": [
+        {
+            "name": "Richard Mutt",
+            "email": "support@crowdhandler.com"
+        }
+        {
+            "name": "lthornton-mm",
+            "email": "leo.thornton@made.media"
+        }
+    ],
+    "require": {
+        "php": ">= 7.2",
+        "slim/slim": "3.*",
+        "ext-json": "*",
+        "ext-curl": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "CrowdHandler\\": "src/"
+        }
+    }
+}
+

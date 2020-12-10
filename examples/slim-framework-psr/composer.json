@@ -1,0 +1,17 @@
+{
+    "name": "leonardthornton/minimal-implementation",
+    "authors": [
+        {
+            "name": "lthornton-mm",
+            "email": "leo.thornton@made.media"
+        }
+    ],
+    "require": {
+        "slim/slim": "3.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "CrowdHandler\\": "../../../../src"
+        }
+    }
+}
