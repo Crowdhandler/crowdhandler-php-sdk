@@ -1,0 +1,15 @@
+runtime: php72
+service: test
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /.*
+  script: auto
+  secure: always
+
+env_variables:
+  crowdhandler_api_root: https://api-dot-crowdhandler.appspot.com/v1/
+  crowdhandler_api_key: ca3b9905-8162-11ea-af2d-42010a800042
