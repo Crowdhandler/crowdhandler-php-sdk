@@ -2,6 +2,7 @@
 .gcloudignore
 .htaccess
 app.yaml
-composer.*
+composer.phar
+composr.lock
 favicon.ico
 php.ini
