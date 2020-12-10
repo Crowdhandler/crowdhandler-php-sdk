@@ -39,7 +39,7 @@ Check the GateKeeper class for the existing Regular Expression for excluding ass
 
     $gatekeeper->setSafetyNetSlug('yourslug');
 
-If you have a catch-all waiting room set up on your domain, you can speficy the slug here. Users will be directed to this waiting room in the case of a failed API call. 
+If you have a catch-all waiting room set up on your domain, you can specify the slug here. Users will be directed to this waiting room in the case of a failed API call. 
 
 #### Go your own way
 
