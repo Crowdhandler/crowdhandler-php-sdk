@@ -17,7 +17,7 @@ Instantiate a new GateKeeper object
 #### using PSR7 Request
     
     $request = new \Psr\Http\Message\ServerRequestInterface;
-    $gatekeeper = new CrowdHandler\GateKeeper($api, request);
+    $gatekeeper = new CrowdHandler\GateKeeper($api, $request);
 
 
 Options
@@ -29,7 +29,7 @@ Options
 
 #### Ignore Urls
 
-    $gatekeeper->setIgnoreUrls(regexp);
+    $gatekeeper->setIgnoreUrls($regexp);
 
 #### Failover waiting room    
 
@@ -37,13 +37,13 @@ Options
 
 #### Go your own way
 
-    $gatekeeper->setToken($_SESSION['token'])
+    $gatekeeper->setToken($_SESSION['token']);
 
 
 Check the current request
 -------------------------
     
-    $gatekeeper->checkRequest()
+    $gatekeeper->checkRequest();
 
 
 Redirect the user if they should wait
@@ -51,7 +51,7 @@ Redirect the user if they should wait
 
 #### Automatic
 
-    $gatekeeper->redirectIfNotPromoted()
+    $gatekeeper->redirectIfNotPromoted();
 
 #### Do it yourself
 
