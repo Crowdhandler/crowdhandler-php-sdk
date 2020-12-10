@@ -102,7 +102,7 @@ Fetch an array of objects
 Fetch an object
 ---------------
 
-    $room = $api->rooms->get('room_your1d');
+    $room = $api->rooms->get('wrm_your1d');
 
 Update an object
 ----------------
