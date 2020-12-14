@@ -153,9 +153,28 @@ class GateKeeper
         }
     }
 
+    public function getSanitisedTargetURL()
+    {
+        # Split the full URL down so that we can manipulate and reconstruct later. 
+        $scheme = parse_url($this->url, PHP_URL_SCHEME);
+        $host = parse_url($this->url, PHP_URL_HOST);
+        $path = parse_url($this->url, PHP_URL_PATH);
+        $queryString = parse_url($this->url, PHP_URL_QUERY);
+        parse_str($queryString, $output);
+
+        $params = $output;
+        if(count($params) > 0) {
+            # We don't want to have to deal with nested versions of this special param key in the waiting room.
+            unset($params['ch-id']);
+            return $scheme . "://" . $host . $path . "?" . http_build_query($params);
+        } else {
+            return $scheme . "://" . $host . $path;
+        }
+    }
+
     public function getRedirectUrl()
     {
-        $waitParams = ['url'=>$this->url, 'ch-public-key'=>$this->client->key, 'ch-id'=>$this->result->token];
+        $waitParams = ['url'=>$this->getSanitisedTargetURL(), 'ch-public-key'=>$this->client->key, 'ch-id'=>$this->result->token];
         $this->redirectUrl = self::WAIT_URL.$this->result->slug.'?'.http_build_query($waitParams);
         return $this->redirectUrl;
     }
