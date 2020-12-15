@@ -6,7 +6,7 @@ require '../../../vendor/autoload.php';
 
 $app = new \Slim\App;
 $app->get('/', function (Request $request, Response $response, array $args) {
-    $api = new CrowdHandler\PublicClient('de50382842c3f4928adbc8ed9ab0518c27c883913fa790e163e0596f4b6445ed');
+    $api = new CrowdHandler\PublicClient('ace1f8062f2df869a5fb0cbd69f51c10d2821dd1e4519e110206eca9e3db86c8');
 //  We pass Slim's PSR7 request instead of having GateKeeper corale info from CGI variables
     $ch = new CrowdHandler\GateKeeper($api, $request);
     $ch->checkRequest();    

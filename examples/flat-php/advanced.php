@@ -8,9 +8,9 @@
 
 require_once '../../vendor/autoload.php';
 
-$api = new CrowdHandler\PublicClient('de50382842c3f4928adbc8ed9ab0518c27c883913fa790e163e0596f4b6445ed'); // your public key here.
+$api = new CrowdHandler\PublicClient('ace1f8062f2df869a5fb0cbd69f51c10d2821dd1e4519e110206eca9e3db86c8'); // your public key here.
 $ch = new CrowdHandler\GateKeeper($api);
-$ch->setSafetyNetSlug('yourslug'); // users will be directed to this known slug if API request or response fails 
+$ch->setSafetyNetSlug('sandbox'); // users will be directed to a known slug (must be one of yours) if API request or response fails 
 $ch->setToken( (isset($_URL['ch-id']) ? $_URL['ch-id'] : isset($_SESSION['ch-id'])) ? $_SESSION['ch-id'] : null );
 $ch->checkRequest();
 if($ch->result->promoted) {

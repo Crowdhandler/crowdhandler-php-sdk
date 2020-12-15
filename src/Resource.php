@@ -14,22 +14,22 @@ class Resource
         $this->url = $url;
     }
 
-    public function post($params=[])
+    public function post($params=array())
     {
         return $this->client->call('POST', $this->url, $params);
     }
 
-    public function get($id='', $params=[])
+    public function get($id='', $params=array())
     {
         return $this->client->call('GET', $this->url.$id, $params);
     }
 
-    public function put($id, $params=[])
+    public function put($id, $params=array())
     {
         return $this->client->call('PUT', $this->url.$id, $params);
     }
 
-    public function delete($id, $params=[])
+    public function delete($id, $params=array())
     {
         return $this->client->call('DELETE', $this->url.$id, $params);
     }

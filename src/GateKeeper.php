@@ -45,10 +45,25 @@ class GateKeeper
         } elseif (isset($cookies[self::TOKEN_COOKIE])) {
             $this->token = $cookies[self::TOKEN_COOKIE];
         }
-        $this->ip = $server['REMOTE_ADDR'];
+    //  now we've extracted the token we sanitize the url
+        $this->url = 'https://' . parse_url($this->url, PHP_URL_HOST) . parse_url($this->url, PHP_URL_PATH);
+        unset($get[SELF::TOKEN_URL]);
+        if(count($get)) $this->url .= '?' . http_build_query($get);
+        $this->detectClientIp($server);
         $this->agent = $server['HTTP_USER_AGENT'];
         $this->lang = $server['HTTP_ACCEPT_LANGUAGE'];        
     }
+
+    private function detectClientIp($server)
+    {
+        if (array_key_exists('HTTP_X_FORWARDED_FOR', $server)) {
+            $this->ip = $server["HTTP_X_FORWARDED_FOR"];  
+        } else if (array_key_exists('REMOTE_ADDR', $server)) { 
+            $this->ip = $server["REMOTE_ADDR"]; 
+        } else if (array_key_exists('HTTP_CLIENT_IP', $server)) {
+            $this->ip = $server["HTTP_CLIENT_IP"]; 
+        } 
+   }
 
     public function setDebug($debug=false)
     {   
@@ -82,9 +97,22 @@ class GateKeeper
         $this->token = $token;
     }
 
+    /**
+     * Detecting IPs can be hard - use this if the constructor is getting it wrong
+     * @param string $ip IP Address
+     */
+    public function setIp($ip)
+    {
+        $this->ip = $ip;
+    }
+
+    /**
+     * If you have your own regular exporession for urls to ignore set it here
+     * @param string $regExp Regular Expression
+     */
     public function setIgnoreUrls($regExp)
     {
-        $this->ignore = $refExp;
+        $this->ignore = $regExp;
     }
 
     private function debug($msg)
@@ -98,9 +126,11 @@ class GateKeeper
      */
     private function ignoreUrl()
     {
-        $url = explode('?', $this->url)[0];
-        preg_match($this->ignore, $url, $matches, PREG_UNMATCHED_AS_NULL);
-        return $matches != null;
+        $arrForPhp53 = explode('?', $this->url);
+        $url = $arrForPhp53[0];
+        $matches = array();
+        preg_match($this->ignore, $url, $matches);
+        return count($matches) > 0;
     }
 
     /**
@@ -110,12 +140,13 @@ class GateKeeper
     {
         if($this->ignoreUrl()) {
             $mock = new ApiObject;
-            $mock->status = null;
+            $mock->status = 0;
+            $mock->token = $this->token;
             $mock->position = null;
             $mock->promoted = 1;
             $this->result = $mock;
         } else {
-            $params = ['url'=>$this->url, 'ip'=>$this->ip, 'agent'=>$this->agent, 'lang'=>$this->lang];
+            $params = array('url'=>$this->url, 'ip'=>$this->ip, 'agent'=>$this->agent, 'lang'=>$this->lang);
             try {
                 if($this->token) {
                     $this->result = $this->client->requests->get($this->token, $params);
@@ -123,9 +154,9 @@ class GateKeeper
                     $this->result = $this->client->requests->post($params);
                 }    
             }
-            catch (Exception $e) {
+            catch (\Exception $e) {
                 $mock = new ApiObject;
-                $mock->status = null;
+                $mock->status = 2;
                 $mock->token = $this->token;
                 $mock->position = null;
                 $mock->slug = $this->safetyNetSlug; 
@@ -153,33 +184,13 @@ class GateKeeper
         }
     }
 
-    public function getSanitisedTargetURL()
-    {
-        # Split the full URL down so that we can manipulate and reconstruct later. 
-        $scheme = parse_url($this->url, PHP_URL_SCHEME);
-        $host = parse_url($this->url, PHP_URL_HOST);
-        $path = parse_url($this->url, PHP_URL_PATH);
-        $queryString = parse_url($this->url, PHP_URL_QUERY);
-        parse_str($queryString, $output);
-
-        $params = $output;
-        if(count($params) > 0) {
-            # We don't want to have to deal with nested versions of this special param key in the waiting room.
-            unset($params['ch-id']);
-            if(count($params) > 0) {
-                return $scheme . "://" . $host . $path . "?" . http_build_query($params);
-            } else {
-                return $scheme . "://" . $host . $path;
-            }
-        } else {
-            return $scheme . "://" . $host . $path;
-        }
-    }
-
+    /** 
+     * Retrieve the URL this user should be redirected to
+    */
     public function getRedirectUrl()
     {
-        $waitParams = ['url'=>$this->getSanitisedTargetURL(), 'ch-public-key'=>$this->client->key, 'ch-id'=>$this->result->token];
-        $this->redirectUrl = self::WAIT_URL.$this->result->slug.'?'.http_build_query($waitParams);
+        $params = array('url'=>$this->url, 'ch-public-key'=>$this->client->key, 'ch-id'=>$this->result->token);
+        $this->redirectUrl = self::WAIT_URL.$this->result->slug.'?'.http_build_query($params);
         return $this->redirectUrl;
     }
 
