@@ -45,13 +45,14 @@ If you want you can pass your own regular expression. This will *override* the e
 
     $gatekeeper->setSafetyNetSlug('yourslug');
     
-By default, if an API call fails, or a malformed response is received, you will be redirected to CrowdHandler's ultimate catch-all waiting room until the API responds with more inforamtion. If you prefer to direct to your own, known, catch-all domain in these circumstances (recommended), you can set the slug here.
+By default, if an API call fails, or a malformed response is received, you will be redirected to CrowdHandler's ultimate catch-all waiting room until the API responds with more inforamtion. If you prefer to direct to your own, known, catch-all waiting room under these circumstances (recommended), you can set the slug here.
 
 #### Go your own way
 
     $gatekeeper->setToken($_SESSION['token']);
 
-By default GateKeeper will inspect and set cookies to retain the users session with CrowdHandler on your site. If you want to manage the session another way you can set the token yourself. 
+By default GateKeeper will inspect and set cookies to retain the users session with CrowdHandler on your site. 
+If you want to manage the session another way you can set the token yourself. 
 
 #### IP detection getting it wrong? Set it yourself
 
