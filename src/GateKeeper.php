@@ -166,7 +166,11 @@ class GateKeeper
         if(count($params) > 0) {
             # We don't want to have to deal with nested versions of this special param key in the waiting room.
             unset($params['ch-id']);
-            return $scheme . "://" . $host . $path . "?" . http_build_query($params);
+            if(count($params) > 0) {
+                return $scheme . "://" . $host . $path . "?" . http_build_query($params);
+            } else {
+                return $scheme . "://" . $host . $path;
+            }
         } else {
             return $scheme . "://" . $host . $path;
         }
