@@ -16,9 +16,9 @@ class GateKeeper
     private $debug = false;
     private $timer;
     public $token;
-    public $ip;
-    public $agent;
-    public $lang;
+    public $ip='192.168.0.1';
+    public $agent='undetected';
+    public $lang='undetected';
     public $url;
     public $result;
     public $redirectUrl;
@@ -47,11 +47,11 @@ class GateKeeper
         }
     //  now we've extracted the token we sanitize the url
         $this->url = 'https://' . parse_url($this->url, PHP_URL_HOST) . parse_url($this->url, PHP_URL_PATH);
-        unset($get[SELF::TOKEN_URL]);
+        unset($get[self::TOKEN_URL]);
         if(count($get)) $this->url .= '?' . http_build_query($get);
         $this->detectClientIp($server);
-        $this->agent = $server['HTTP_USER_AGENT'];
-        $this->lang = $server['HTTP_ACCEPT_LANGUAGE'];        
+        if (isset($server['HTTP_USER_AGENT'])) $this->agent = $server['HTTP_USER_AGENT'];
+        if (isset($server['HTTP_ACCEPT_LANGUAGE'])) $this->lang = $server['HTTP_ACCEPT_LANGUAGE'];        
     }
 
     private function detectClientIp($server)
@@ -211,7 +211,7 @@ class GateKeeper
     {   
         if(@$this->result->responseID) {
             $time = $this->timer->elapsed();
-            $this->client->responses->put($this->result->responseID, ['code'=>$httpCode, 'time'=>$time]);
+            $this->client->responses->put($this->result->responseID, array('code'=>$httpCode, 'time'=>$time));
             $this->debug('Page performance was recorded '.$time);
         }
     }

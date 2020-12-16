@@ -17,7 +17,7 @@ $ch->setCookie();
 
 	<h1>CrowdHandler PHP Integration</h1>
 
-	<p>You requested the url <code><?=$ch->url ?></code> with the token <code><?=$ch->token ?></code><p>
+	<p>You requested the url <code><?php echo $ch->url ?></code> with the token <code><?php echo $ch->token ?></code><p>
 
     <?php if($ch->result->status == 2): ?>
         <p>No valid response was received from CrowdHandler</p>
@@ -25,13 +25,13 @@ $ch->setCookie();
         <p>CrowdHandler sent this response:</p>
     <?php endif ?>
 
-	<code><pre><?=$ch->result ?></pre></code>
+	<code><pre><?php echo $ch->result ?></pre></code>
 
     <?php if ($ch->result->promoted): ?>
         <p>This user is <strong>promoted</strong> for this page</p>
     <?php else: ?>
         <p>This user is <strong>not promoted</strong> for this page</p>
-        <p>This user will be redirected to: <a href="<?=$ch->redirectUrl ?>"><code><?=$ch->redirectUrl ?></code></a>
+        <p>This user will be redirected to: <a href="<?php echo $ch->redirectUrl ?>"><code><?php echo $ch->redirectUrl ?></code></a>
     <?php endif ?>
 
 </body>
