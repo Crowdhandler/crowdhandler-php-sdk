@@ -27,7 +27,7 @@ class Client
         } else {
             $curl = curl_init($resource);
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
-            if (!defined(JSON_PRETTY_PRINT)) define(JSON_PRETTY_PRINT, 128);    // PHP 5.3 compatibility.
+            if (!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 128);    // PHP 5.3 compatibility.
             if ($params) curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($params, JSON_PRETTY_PRINT));
         }
         curl_setopt($curl, CURLOPT_HTTPHEADER, array('content-type: application/json', 'x-api-key: ' . $this->key));
