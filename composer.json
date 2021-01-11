@@ -27,5 +27,6 @@
         "psr-4": {
             "CrowdHandler\\": "src/"
         }
-    }
+    },
+    "minimum-stability": "stable"
 }
