@@ -57,12 +57,17 @@ class GateKeeper
     private function detectClientIp($server)
     {
         if (array_key_exists('HTTP_X_FORWARDED_FOR', $server)) {
-            $this->ip = $server["HTTP_X_FORWARDED_FOR"];  
-        } else if (array_key_exists('REMOTE_ADDR', $server)) { 
-            $this->ip = $server["REMOTE_ADDR"]; 
+            $ip = $server["HTTP_X_FORWARDED_FOR"];
+        } else if (array_key_exists('REMOTE_ADDR', $server)) {
+            $ip = $server["REMOTE_ADDR"];
         } else if (array_key_exists('HTTP_CLIENT_IP', $server)) {
-            $this->ip = $server["HTTP_CLIENT_IP"]; 
-        } 
+            $ip = $server["HTTP_CLIENT_IP"];
+        }
+    
+        if (!empty($ip)) {
+            $ip = explode(',', $ip);
+            $this->ip = trim(reset($ip));
+        }
    }
 
     public function setDebug($debug=false)

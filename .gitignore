@@ -6,3 +6,4 @@ composer.phar
 composr.lock
 favicon.ico
 php.ini
+.idea/
