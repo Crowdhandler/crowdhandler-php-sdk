@@ -182,6 +182,7 @@ class GateKeeper
                 $this->debug($this->redirectUrl);
             } else
             {
+                header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
                 header('location: '.$this->redirectUrl, true, self::HTTP_REDIRECT_CODE);
                 exit;
             }                
