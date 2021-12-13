@@ -5,7 +5,7 @@ namespace CrowdHandler;
 class Client
 {
     const BASE_URL = "https://api.crowdhandler.com/v1/";
-    const API_TIMEOUT = 1;
+    const API_TIMEOUT = 2;
 
     public $key;
 
