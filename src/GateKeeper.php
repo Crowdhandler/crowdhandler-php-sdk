@@ -131,10 +131,8 @@ class GateKeeper
      */
     private function ignoreUrl()
     {
-        $arrForPhp53 = explode('?', $this->url);
-        $url = $arrForPhp53[0];
         $matches = array();
-        preg_match($this->ignore, $url, $matches);
+        preg_match($this->ignore, $this->url, $matches);
         return count($matches) > 0;
     }
 
