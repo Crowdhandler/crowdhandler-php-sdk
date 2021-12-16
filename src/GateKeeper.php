@@ -202,9 +202,11 @@ class GateKeeper
      * Set CrowdHandler session cookie 
      */
     public function setCookie()
-    {
-        setcookie(self::TOKEN_COOKIE, $this->result->token, 0, '/', '', $this->debug ? false: true);
-        $this->debug('Setting cookie '.$this->result->token);
+    {   
+        if (!is_null($this->result->token)) {
+            setcookie(self::TOKEN_COOKIE, $this->result->token, 0, '/', '', $this->debug ? false: true);
+            $this->debug('Setting cookie '.$this->result->token);
+        }
     }
 
     /**
