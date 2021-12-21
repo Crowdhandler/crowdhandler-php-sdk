@@ -11,7 +11,7 @@ class GateKeeper
 
     private $ignore = "/^.*\.(ico|css|js|json|pdf|xml|eot|ott|ttf|woff|woff2|gif|jpg|png|svg|avi|mov|mp4|mpeg|mpg|wmv|ogg|ogv)$/";
     private $client;
-    private $failTrust = false;
+    private $failTrust = true;
     private $safetyNetSlug;
     private $debug = false;
     private $timer;
