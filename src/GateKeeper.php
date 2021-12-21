@@ -9,7 +9,7 @@ class GateKeeper
     const TOKEN_COOKIE = 'ch-id';
     const TOKEN_URL = 'ch-id';
 
-    private $ignore = "/^.*\.(ico|css|js|json|pdf|xml|eot|ott|ttf|woff|woff2|gif|jpg|png|svg|avi|mov|mp4|mpeg|mpg|wmv|ogg|ogv)$/";
+    private $ignore = "/^(.*(?<!\?)\.(ico|css|js|json|pdf|xml|eot|ott|ttf|woff|woff2|gif|jpg|jpeg|png|svg|avi|mov|mp4|mpeg|mpg|wmv|ogg|ogv)(\/*)$)/";
     private $client;
     private $failTrust = false;
     private $safetyNetSlug;
