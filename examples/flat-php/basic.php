@@ -5,8 +5,8 @@ require_once '../../vendor/autoload.php';
 $api = new CrowdHandler\PublicClient('ace1f8062f2df869a5fb0cbd69f51c10d2821dd1e4519e110206eca9e3db86c8'); // your public key here.
 $ch = new CrowdHandler\GateKeeper($api);
 $ch->checkRequest();
-$ch->redirectIfNotPromoted();
 $ch->setCookie();
+$ch->redirectIfNotPromoted();
 
 ?>
 <html>
