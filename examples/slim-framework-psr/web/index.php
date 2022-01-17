@@ -20,7 +20,7 @@ $app->get('/', function (Request $request, Response $response, array $args) {
         $ch->recordPerformance(200);
         return $response->withHeader('Set-Cookie', $cookies->toHeaders());
     } else {
-        return $response->withRedirect($ch->getRedirectUrl(), 302);
+        return $response->withHeader('Set-Cookie', $cookies->toHeaders())->withRedirect($ch->getRedirectUrl(), 302);
     }
 });
 $app->run();
