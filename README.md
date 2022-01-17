@@ -67,6 +67,25 @@ Check the current request
     
 This is the heart of the class. It looks at the user's request, checks in with the API and retrieves a result that indicates whether the user should be granted access or be sent to a waiting room. 
 
+Set the cookie
+--------------
+
+#### Automatic
+
+    $gatekeeper->setCookie();
+
+Now you set the cookie so that the user carries their token with each request. 
+This is important, if the token cannot be checked, a new one will be issued, and this may result in a promoted user being sent to a waiting room.
+
+#### Go your own way
+
+    $_SESSION['ch-id'] = $gatekeeper->result->token;
+
+If you don't want to use the standard cookie, you can do your own thing. 
+NB, we do not really recommend using the PHP session for storing the token, as it typically times out after 20 minutes. 
+A user may be in a waiting room for hours and then try hitting a url on your site in a new tab, which could result in 
+you issuing them with a new position at the back of the queue. For this reason a session, or permenant cookie is usually preferable.
+
 
 Redirect the user if they should wait
 -------------------------------------
@@ -85,22 +104,6 @@ If this user should be waiting, they will be sent to the correct waiting room. T
     }
 
 If you want to make a conditional check, this is the check you shouild make, and how you can find the URL to redirect them to.
-
-Set the cookie
---------------
-
-#### Automatic
-
-    $gatekeeper->setCookie();
-
-Now you set the cookie so that the user carries their token with each request. 
-This is important, if the token cannot be checked, a new one will be issued, and this may result in a promoted user being sent to a waiting room.
-
-#### Go your own way
-
-    $_SESSION['ch-id'] = $gatekeeper->result->token;
-
-If you don't want to use the standard cookie, you can do your own thing. 
 
 Instantiate a Private API Client
 --------------------------------
