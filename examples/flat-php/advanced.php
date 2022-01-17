@@ -13,10 +13,9 @@ $ch = new CrowdHandler\GateKeeper($api);
 $ch->setSafetyNetSlug('sandbox'); // users will be directed to a known slug (must be one of yours) if API request or response fails 
 $ch->setToken( (isset($_URL['ch-id']) ? $_URL['ch-id'] : isset($_SESSION['ch-id'])) ? $_SESSION['ch-id'] : null );
 $ch->checkRequest();
-if($ch->result->promoted) {
-    $_SESSION['ch-id'] = $ch->result->token;
-} else {
-    header('location:'.$ch->getRedirectUrl(), 302);
+$_SESSION['ch-id'] = $ch->result->token; // we do not recommend using default session for token storage, this is just an example.
+if(!$ch->result->promoted) {
+    header('location:'.$ch->getRedirectUrl(), 302);    
 }
 
 ?>
