@@ -49,15 +49,21 @@ class GateKeeper
             $server = $_SERVER;
             $cookies = $_COOKIE;
         }
+
+
+        // Token in URL
         if (isset($get[self::TOKEN_URL])) {
-            $this->token = $get[self::TOKEN_URL];
+            $this->setCookie($get[self::TOKEN_URL]);
+            // clean url and redirect
+            $this->sanitizeURL($this->url, $get);
+            header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+            header('location: '.$this->url, true, self::HTTP_REDIRECT_CODE);
+            exit;
+
         } elseif (isset($cookies[self::TOKEN_COOKIE])) {
             $this->token = $cookies[self::TOKEN_COOKIE];
         }
 
-        //  now we've extracted the token we sanitize the url
-        $this->url = $this->sanitizeURL($this->url, $get);
-        
         $this->detectClientIp($server);
         if (isset($server['HTTP_USER_AGENT'])) $this->agent = $server['HTTP_USER_AGENT'];
         if (isset($server['HTTP_ACCEPT_LANGUAGE'])) $this->lang = $server['HTTP_ACCEPT_LANGUAGE'];        
@@ -70,8 +76,6 @@ class GateKeeper
      */
     private function sanitizeURL ($url, $get)
     {
-
-        $isPromoted = false;
         
         $parsed_url  = parse_url($url);
         $this->url = 'https://' . $parsed_url['host'] . $parsed_url['path'];
@@ -80,7 +84,6 @@ class GateKeeper
         for ($i=0; $i < Count(self::CROWDHANDLER_PARAMS); $i++) {
             if (isset($get[self::CROWDHANDLER_PARAMS[$i]]))
             {
-                $isPromoted = true;
                 array_push($ch_params_to_remove, $get[self::CROWDHANDLER_PARAMS[$i]]);
             }
         }
@@ -90,16 +93,6 @@ class GateKeeper
         if (Count($remaining_query_parameters) > 0) {
             $this->url = $this->url .= '?' . http_build_query($remaining_query_parameters);
         }
-
-        if($isPromoted) {
-            // and redirect
-            header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-            header('location: '.$this->url, true, self::HTTP_REDIRECT_CODE);
-            exit;
-        } else {
-            return $this->url;
-        }
-
        
     }
 
@@ -204,7 +197,10 @@ class GateKeeper
                     $this->result = $this->client->requests->get($this->token, $params);
                 } else {
                     $this->result = $this->client->requests->post($params);
-                }    
+                }
+                if(isset($this->result->token)) {
+                    $this->setCookie($this->result->token);
+                }
             }
             catch (\Exception $e) {
                 $mock = new ApiObject;
@@ -250,11 +246,11 @@ class GateKeeper
     /**
      * Set CrowdHandler session cookie 
      */
-    public function setCookie()
+    private function setCookie($cookie)
     {   
-        if (!is_null($this->result->token)) {
-            setcookie(self::TOKEN_COOKIE, $this->result->token, 0, '/', '', $this->debug ? false: true);
-            $this->debug('Setting cookie '.$this->result->token);
+        if (!is_null($cookie)) {
+            setcookie(self::TOKEN_COOKIE, $cookie, 0, '/', '', $this->debug ? false: true);
+            $this->debug('Setting cookie '.$cookie);
         }
     }
 
