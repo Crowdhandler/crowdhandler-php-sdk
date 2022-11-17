@@ -72,10 +72,8 @@ Set the cookie
 
 #### Automatic
 
-    $gatekeeper->setCookie();
 
-Now you set the cookie so that the user carries their token with each request. 
-This is important, if the token cannot be checked, a new one will be issued, and this may result in a promoted user being sent to a waiting room.
+We automatically set the cookie so that the user carries their token with each request.
 
 #### Go your own way
 
