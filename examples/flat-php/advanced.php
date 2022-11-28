@@ -1,8 +1,7 @@
 <?php
 
 /*
-    In this example, we will use the session object instead of cookies.
-    And we will handle the redirect ourselves instead of relying on CrowdHandlee\GateKeeper
+    In this example, we will handle the redirect ourselves instead of relying on CrowdHandler\GateKeeper
     We will also specify a slug to redirect to if the request check fails.
 */
 
@@ -11,9 +10,8 @@ require_once '../../vendor/autoload.php';
 $api = new CrowdHandler\PublicClient('ace1f8062f2df869a5fb0cbd69f51c10d2821dd1e4519e110206eca9e3db86c8'); // your public key here.
 $ch = new CrowdHandler\GateKeeper($api);
 $ch->setSafetyNetSlug('sandbox'); // users will be directed to a known slug (must be one of yours) if API request or response fails 
-$ch->setToken( (isset($_URL['ch-id']) ? $_URL['ch-id'] : isset($_SESSION['ch-id'])) ? $_SESSION['ch-id'] : null );
+$ch->setToken( isset($_SESSION['ch-id']) ? $_SESSION['ch-id'] : null );
 $ch->checkRequest();
-$_SESSION['ch-id'] = $ch->result->token; // we do not recommend using default session for token storage, this is just an example.
 if(!$ch->result->promoted) {
     header('location:'.$ch->getRedirectUrl(), 302);    
 }
