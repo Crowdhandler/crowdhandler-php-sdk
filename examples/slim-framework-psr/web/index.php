@@ -10,17 +10,15 @@ $app->get('/', function (Request $request, Response $response, array $args) {
 //  We pass Slim's PSR7 request instead of having GateKeeper corale info from CGI variables
     $ch = new CrowdHandler\GateKeeper($api, $request);
     $ch->checkRequest();    
-//  We use Slim to set the cookie, not the method inside GateKeeper
-    $cookies = new Slim\Http\Cookies();
-    $cookies->set('ch-id', ['value' => $ch->result->token, 'path'=>'/']);
+
     if($ch->result->promoted) {
     //  Here you would build your response as normal. We're just rendering the CrowdHandler Result
         $response->getBody()->write($ch->result);
     //  Now log the performance, we're about to dispatch the response
         $ch->recordPerformance(200);
-        return $response->withHeader('Set-Cookie', $cookies->toHeaders());
+        return $response;
     } else {
-        return $response->withHeader('Set-Cookie', $cookies->toHeaders())->withRedirect($ch->getRedirectUrl(), 302);
+        return $response->withRedirect($ch->getRedirectUrl(), 302);
     }
 });
 $app->run();

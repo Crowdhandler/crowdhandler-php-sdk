@@ -9,6 +9,15 @@ class GateKeeper
     const TOKEN_COOKIE = 'ch-id';
     const TOKEN_URL = 'ch-id';
 
+    const CROWDHANDLER_PARAMS = array(
+        'ch-id',
+        'ch-fresh',
+        'ch-id-signature',
+        'ch-public-key',
+        'ch-requested',
+        'ch-code'
+    );
+
     private $ignore = "/^((?!.*\?).*(\.(avi|css|eot|gif|ico|jpg|jpeg|js|json|mov|mp4|mpeg|mpg|og[g|v]|pdf|png|svg|ttf|txt|wmv|woff|woff2|xml))$)/";
     private $client;
     private $failTrust = true;
@@ -40,18 +49,51 @@ class GateKeeper
             $server = $_SERVER;
             $cookies = $_COOKIE;
         }
+
+
+        // Token in URL
         if (isset($get[self::TOKEN_URL])) {
-            $this->token = $get[self::TOKEN_URL];
+            $this->setCookie($get[self::TOKEN_URL]);
+            // clean url and redirect
+            $this->sanitizeURL($this->url, $get);
+            header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+            header('location: '.$this->url, true, self::HTTP_REDIRECT_CODE);
+            exit;
+
         } elseif (isset($cookies[self::TOKEN_COOKIE])) {
             $this->token = $cookies[self::TOKEN_COOKIE];
         }
-    //  now we've extracted the token we sanitize the url
-        $this->url = 'https://' . parse_url($this->url, PHP_URL_HOST) . parse_url($this->url, PHP_URL_PATH);
-        unset($get[self::TOKEN_URL]);
-        if(count($get)) $this->url .= '?' . http_build_query($get);
+
         $this->detectClientIp($server);
         if (isset($server['HTTP_USER_AGENT'])) $this->agent = $server['HTTP_USER_AGENT'];
         if (isset($server['HTTP_ACCEPT_LANGUAGE'])) $this->lang = $server['HTTP_ACCEPT_LANGUAGE'];        
+    }
+
+    /**
+     * Removes crowdhandler specific query parameters on promotion
+     * @param string $url The url that is currently being requested
+     * @param array $get An array of the current query sring parameters   
+     */
+    private function sanitizeURL ($url, $get)
+    {
+        
+        $parsed_url  = parse_url($url);
+        $this->url = 'https://' . $parsed_url['host'] . $parsed_url['path'];
+
+        $ch_params_to_remove = array();
+        for ($i=0; $i < Count(self::CROWDHANDLER_PARAMS); $i++) {
+            if (isset($get[self::CROWDHANDLER_PARAMS[$i]]))
+            {
+                array_push($ch_params_to_remove, $get[self::CROWDHANDLER_PARAMS[$i]]);
+            }
+        }
+
+        $remaining_query_parameters = array_diff($get, $ch_params_to_remove);
+        
+        if (Count($remaining_query_parameters) > 0) {
+            $this->url = $this->url .= '?' . http_build_query($remaining_query_parameters);
+        }
+       
     }
 
     private function detectClientIp($server)
@@ -155,7 +197,10 @@ class GateKeeper
                     $this->result = $this->client->requests->get($this->token, $params);
                 } else {
                     $this->result = $this->client->requests->post($params);
-                }    
+                }
+                if(isset($this->result->token)) {
+                    $this->setCookie($this->result->token);
+                }
             }
             catch (\Exception $e) {
                 $mock = new ApiObject;
@@ -201,11 +246,11 @@ class GateKeeper
     /**
      * Set CrowdHandler session cookie 
      */
-    public function setCookie()
+    private function setCookie($cookie)
     {   
-        if (!is_null($this->result->token)) {
-            setcookie(self::TOKEN_COOKIE, $this->result->token, 0, '/', '', $this->debug ? false: true);
-            $this->debug('Setting cookie '.$this->result->token);
+        if (!is_null($cookie)) {
+            setcookie(self::TOKEN_COOKIE, $cookie, 0, '/', '', $this->debug ? false: true);
+            $this->debug('Setting cookie '.$cookie);
         }
     }
 
