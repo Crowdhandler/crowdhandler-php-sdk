@@ -7,3 +7,4 @@ composr.lock
 favicon.ico
 php.ini
 .idea/
+.DS_Store
