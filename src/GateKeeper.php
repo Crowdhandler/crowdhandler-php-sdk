@@ -24,6 +24,7 @@ class GateKeeper
     private $safetyNetSlug;
     private $debug = false;
     private $timer;
+    private $cookieDomain;
     public $token;
     public $ip='192.168.0.1';
     public $agent='undetected';
@@ -50,6 +51,7 @@ class GateKeeper
             $cookies = $_COOKIE;
         }
 
+        $this->setCookieDomain($server);
 
         // Token in URL
         if (isset($get[self::TOKEN_URL])) {
@@ -241,6 +243,27 @@ class GateKeeper
         $params = array('url'=>$this->url, 'ch-public-key'=>$this->client->key, 'ch-id'=>$this->result->token);
         $this->redirectUrl = self::WAIT_URL.$this->result->slug.'?'.http_build_query($params);
         return $this->redirectUrl;
+    }
+
+    /**
+     * Set Cookie domain based on server variables
+     * Removes www. if found to allow subdomains 
+     */
+    private function setCookieDomain($server)
+    {
+        $host = "";
+        if (array_key_exists('HTTP_HOST', $server)) {
+            $host = $server["HTTP_HOST"];
+            if(strpos($host, "www.") === 0) {
+                $host = substr($host, 4);
+            }
+        }
+        $this->cookieDomain = $host;
+    }
+
+    private function getCookieDomain()
+    {
+        return $this->cookieDomain;
     }
 
     /**
