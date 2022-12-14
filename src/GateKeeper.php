@@ -272,7 +272,7 @@ class GateKeeper
     private function setCookie($cookie)
     {   
         if (!is_null($cookie)) {
-            setcookie(self::TOKEN_COOKIE, $cookie, 0, '/', '', $this->debug ? false: true);
+            setcookie(self::TOKEN_COOKIE, $cookie, 0, '/', $this->getCookieDomain(), $this->debug ? false: true);
             $this->debug('Setting cookie '.$cookie);
         }
     }
