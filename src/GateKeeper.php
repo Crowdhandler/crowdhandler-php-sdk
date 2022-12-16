@@ -24,6 +24,7 @@ class GateKeeper
     private $safetyNetSlug;
     private $debug = false;
     private $timer;
+    private $cookieDomain;
     private $ignoreRequest = false;
     public $token;
     public $ip='192.168.0.1';
@@ -50,6 +51,8 @@ class GateKeeper
             $server = $_SERVER;
             $cookies = $_COOKIE;
         }
+
+        $this->setCookieDomain($server);
 
         if (isset($server['REQUEST_SCHEME'])){
             $this->ignoreRequest = strtolower($server['REQUEST_SCHEME']) != "https";
@@ -248,12 +251,33 @@ class GateKeeper
     }
 
     /**
+     * Set Cookie domain based on server variables
+     * Removes www. if found to allow subdomains 
+     */
+    private function setCookieDomain($server)
+    {
+        $host = "";
+        if (array_key_exists('HTTP_HOST', $server)) {
+            $host = $server["HTTP_HOST"];
+            if(strpos($host, "www.") === 0) {
+                $host = substr($host, 4);
+            }
+        }
+        $this->cookieDomain = $host;
+    }
+
+    private function getCookieDomain()
+    {
+        return $this->cookieDomain;
+    }
+
+    /**
      * Set CrowdHandler session cookie 
      */
     private function setCookie($cookie)
     {   
         if (!is_null($cookie)) {
-            setcookie(self::TOKEN_COOKIE, $cookie, 0, '/', '', $this->debug ? false: true);
+            setcookie(self::TOKEN_COOKIE, $cookie, 0, '/', $this->getCookieDomain(), $this->debug ? false: true);
             $this->debug('Setting cookie '.$cookie);
         }
     }
