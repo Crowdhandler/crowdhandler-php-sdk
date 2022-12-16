@@ -288,7 +288,7 @@ class GateKeeper
      */
     public function recordPerformance($httpCode=200)
     {   
-        if(@$this->result->responseID) {
+        if(property_exists($this->result, 'responseID')) {
             $time = $this->timer->elapsed();
             $this->client->responses->put($this->result->responseID, array('code'=>$httpCode, 'time'=>$time));
             $this->debug('Page performance was recorded '.$time);
