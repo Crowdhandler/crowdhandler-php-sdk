@@ -89,7 +89,7 @@ class GateKeeper
         }
 
         $remaining_query_parameters = array_diff($get, $ch_params_to_remove);
-        
+        $remaining_query_parameters['ch-fresh'] = uniqid();
         if (Count($remaining_query_parameters) > 0) {
             $this->url = $this->url .= '?' . http_build_query($remaining_query_parameters);
         }
