@@ -2,6 +2,7 @@
 
 namespace CrowdHandler;
 
+#[\AllowDynamicProperties]
 class Client
 {
     const BASE_URL = "https://api.crowdhandler.com/v1/";
