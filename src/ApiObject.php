@@ -2,6 +2,7 @@
 
 namespace CrowdHandler;
 
+#[\AllowDynamicProperties]
 class ApiObject
 {
     public function __construct($obj=null)
