@@ -25,7 +25,6 @@ class GateKeeper
     private $debug = false;
     private $timer;
     private $cookieDomain;
-    private $ignoreRequest = false;
     public $token;
     public $ip='192.168.0.1';
     public $agent='undetected';
@@ -53,10 +52,6 @@ class GateKeeper
         }
 
         $this->setCookieDomain($server);
-
-        if (isset($server['REQUEST_SCHEME'])){
-            $this->ignoreRequest = strtolower($server['REQUEST_SCHEME']) != "https";
-        }
 
         // Token in URL
         if (isset($get[self::TOKEN_URL])) {
@@ -190,7 +185,7 @@ class GateKeeper
      */
     public function checkRequest()
     {
-        if($this->ignoreUrl() || $this->ignoreRequest) {
+        if($this->ignoreUrl()) {
             $mock = new ApiObject;
             $mock->status = 0;
             $mock->token = $this->token;
