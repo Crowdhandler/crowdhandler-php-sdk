@@ -54,8 +54,9 @@ class GateKeeper
         $this->setCookieDomain($server);
 
         // Token in URL
-        if (isset($get[self::TOKEN_URL])) {
-            $this->setCookie($get[self::TOKEN_URL]);
+        $urlToken = $this->getUrlToken($get);
+        if (!is_null($urlToken)) {
+            $this->setCookie($urlToken);
             // clean url and redirect
             $this->sanitizeURL($this->url, $get);
             header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -72,30 +73,49 @@ class GateKeeper
     }
 
     /**
+     * Read the CrowdHandler token from the query parameters.
+     * Accepts both the canonical hyphenated key ('ch-id') and the
+     * underscored variant ('ch_id') that some proxies/frameworks produce.
+     * @param array $get An array of the current query string parameters
+     * @return string|null The token value, or null if not present
+     */
+    private function getUrlToken($get)
+    {
+        if (isset($get[self::TOKEN_URL])) {
+            return $get[self::TOKEN_URL];
+        }
+        $underscored = str_replace('-', '_', self::TOKEN_URL);
+        if (isset($get[$underscored])) {
+            return $get[$underscored];
+        }
+        return null;
+    }
+
+    /**
      * Removes crowdhandler specific query parameters on promotion
      * @param string $url The url that is currently being requested
-     * @param array $get An array of the current query sring parameters   
+     * @param array $get An array of the current query sring parameters
      */
     private function sanitizeURL ($url, $get)
     {
-        
+
         $parsed_url  = parse_url($url);
         $this->url = 'https://' . $parsed_url['host'] . $parsed_url['path'];
 
-        $ch_params_to_remove = array();
-        for ($i=0; $i < Count(self::CROWDHANDLER_PARAMS); $i++) {
-            if (isset($get[self::CROWDHANDLER_PARAMS[$i]]))
-            {
-                array_push($ch_params_to_remove, $get[self::CROWDHANDLER_PARAMS[$i]]);
-            }
+        // Strip every CrowdHandler param by key, covering both the hyphenated
+        // form ('ch-id') and the underscored form ('ch_id') that some
+        // proxies/frameworks produce, so none leak back into the clean URL.
+        $remaining_query_parameters = $get;
+        foreach (self::CROWDHANDLER_PARAMS as $param) {
+            unset($remaining_query_parameters[$param]);
+            unset($remaining_query_parameters[str_replace('-', '_', $param)]);
         }
 
-        $remaining_query_parameters = array_diff($get, $ch_params_to_remove);
         $remaining_query_parameters['ch-fresh'] = uniqid();
         if (Count($remaining_query_parameters) > 0) {
             $this->url = $this->url .= '?' . http_build_query($remaining_query_parameters);
         }
-       
+
     }
 
     private function detectClientIp($server)

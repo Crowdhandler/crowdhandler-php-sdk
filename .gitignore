@@ -1,4 +1,5 @@
 /vendor/
+/local/
 .gcloudignore
 .htaccess
 app.yaml
