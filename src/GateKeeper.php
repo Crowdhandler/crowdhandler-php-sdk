@@ -33,7 +33,7 @@ class GateKeeper
     public $result;
     public $redirectUrl;
  
-    public function __construct(Client $client, \Psr\Http\Message\ServerRequestInterface $request=null) 
+    public function __construct(Client $client, ?\Psr\Http\Message\ServerRequestInterface $request = null) 
     {
         $this->timer = new Timer();
         $this->client = $client;
@@ -45,7 +45,12 @@ class GateKeeper
             $cookies = $request->getCookieParams();
         } else {
         //  Old School
-            $this->url = 'https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+            //  Not every SAPI populates these (CLI, cron and some FastCGI setups
+            //  omit them). Read them defensively rather than warn; sanitizeURL()
+            //  guards the resulting url before it is ever used for a redirect.
+            $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+            $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+            $this->url = 'https://'.$host.$uri;
             $get = $_GET;
             $server = $_SERVER;
             $cookies = $_COOKIE;
@@ -127,6 +132,12 @@ class GateKeeper
     {
 
         $parsed_url  = parse_url($url);
+        // With no Host header there is no origin to rebuild: parse_url() returns
+        // false and reading ['host'] off it would warn, breaking the header()
+        // call that follows. Leave the url untouched instead.
+        if (!is_array($parsed_url) || !isset($parsed_url['host'])) {
+            return;
+        }
         // parse_url() returns the port separately and omits 'path' entirely for
         // urls like 'https://example.com?ch-id=x', so rebuild defensively:
         // dropping the port would redirect to the wrong origin, and a missing
