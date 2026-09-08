@@ -63,8 +63,11 @@ class GateKeeper
             header('location: '.$this->url, true, self::HTTP_REDIRECT_CODE);
             exit;
 
-        } elseif (isset($cookies[self::TOKEN_COOKIE])) {
-            $this->token = $cookies[self::TOKEN_COOKIE];
+        } else {
+            $cookieToken = $this->getCookieToken($cookies);
+            if (!is_null($cookieToken)) {
+                $this->token = $cookieToken;
+            }
         }
 
         $this->detectClientIp($server);
@@ -81,12 +84,36 @@ class GateKeeper
      */
     private function getUrlToken($get)
     {
-        if (isset($get[self::TOKEN_URL])) {
-            return $get[self::TOKEN_URL];
-        }
-        $underscored = str_replace('-', '_', self::TOKEN_URL);
-        if (isset($get[$underscored])) {
-            return $get[$underscored];
+        return $this->readToken($get, self::TOKEN_URL);
+    }
+
+    /**
+     * Read the CrowdHandler token from the request cookies.
+     * Accepts both the canonical hyphenated name ('ch-id') and the
+     * underscored variant ('ch_id') that some proxies/frameworks produce.
+     * @param array $cookies An array of the current request cookies
+     * @return string|null The token value, or null if not present
+     */
+    private function getCookieToken($cookies)
+    {
+        return $this->readToken($cookies, self::TOKEN_COOKIE);
+    }
+
+    /**
+     * Look up a token by key, falling back to the underscored variant of that
+     * key. Only scalar values are accepted, so array input (e.g. 'ch-id[]=a')
+     * is treated as absent rather than propagating into setcookie().
+     * @param array $source The array to read from
+     * @param string $key The canonical hyphenated key
+     * @return string|null The token value, or null if not present
+     */
+    private function readToken($source, $key)
+    {
+        $keys = array($key, str_replace('-', '_', $key));
+        foreach ($keys as $candidate) {
+            if (isset($source[$candidate]) && is_scalar($source[$candidate])) {
+                return (string) $source[$candidate];
+            }
         }
         return null;
     }
@@ -100,7 +127,13 @@ class GateKeeper
     {
 
         $parsed_url  = parse_url($url);
-        $this->url = 'https://' . $parsed_url['host'] . $parsed_url['path'];
+        // parse_url() returns the port separately and omits 'path' entirely for
+        // urls like 'https://example.com?ch-id=x', so rebuild defensively:
+        // dropping the port would redirect to the wrong origin, and a missing
+        // path would emit a warning that breaks the subsequent header() call.
+        $port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+        $path = isset($parsed_url['path']) ? $parsed_url['path'] : '/';
+        $this->url = 'https://' . $parsed_url['host'] . $port . $path;
 
         // Strip every CrowdHandler param by key, covering both the hyphenated
         // form ('ch-id') and the underscored form ('ch_id') that some
